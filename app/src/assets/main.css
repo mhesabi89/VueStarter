@@ -1,0 +1,14 @@
+body {
+  direction: rtl;
+  font-family: "Vazirmatn FD", tahoma;
+  font-size: 14px;
+}
+body .btn,
+body .alert,
+body .form-label,
+.form-control {
+  font-family: "Vazirmatn FD", tahoma;
+}
+.ltr {
+  direction: ltr;
+}
