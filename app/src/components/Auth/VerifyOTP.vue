@@ -8,6 +8,7 @@
       <Field
         type="text"
         name="code"
+        id="code"
         class="form-control text-center ltr"
         placeholder="رمز یکبار مصرف"
         inputmode="numeric"
@@ -28,8 +29,10 @@
         <div class="col-6">
           <button
             class="btn btn-primary w-100"
-            v-bind:class="{ disabled: props.setting.Loading }"
-            :disabled="props.setting.Loading"
+            v-bind:class="{
+              disabled: props.setting.Loading || counter.valueOf() == 0,
+            }"
+            :disabled="props.setting.Loading || counter.valueOf() == 0"
           >
             بررسی کد
           </button>
@@ -37,7 +40,7 @@
         <div class="col-6">
           <button
             type="button"
-            @click="props.setting.backButton"
+            @click="backButton()"
             class="btn btn-secondary w-100"
           >
             بازگشت
@@ -48,7 +51,7 @@
         <button
           type="button"
           class="btn btn-link flex-grow-1"
-          @click="props.setting.SendOTP(props.setting.mobile)"
+          @click="sendOTP()"
           v-bind:class="{ disabled: props.setting.counter > 0 }"
         >
           ارسال مجدد کد
@@ -56,6 +59,14 @@
             >({{ props.setting.counter }} ثانیه دیگر)</span
           >
         </button>
+      </div>
+      <div class="mt-3" v-if="counter.valueOf() <= 15">
+        <div class="alert alert-warning">
+          با توجه به پایان مهلت ثبت رمز یکبار مصرف
+          <span v-if="counter.valueOf() > 0"
+            >تا {{ counter.valueOf() }} دیگر </span
+          >، در صورت تمایل جهت دریافت کد جدید از دکمه ارسال مجدد استفاده کنید
+        </div>
       </div>
     </div>
   </Form>
@@ -66,13 +77,38 @@ import { ref } from "vue";
 import { Field, Form, ErrorMessage } from "vee-validate";
 import * as Yup from "yup";
 const props = defineProps(["setting"]);
+const counterInitValue = 120;
+let counter = ref(counterInitValue);
 const formSchema = Yup.object({
   code: Yup.string()
     .required("تکمیل فیلد الزامی است")
     .matches(/\d{5}/, "رمز یکبار مصرف 5 رقمی می باشد"),
 });
 
+function init() {
+  counter.value = counterInitValue;
+  const timer = setInterval(() => {
+    if (counter.value > 0) {
+      counter.value--;
+    } else {
+      clearInterval(timer);
+    }
+  }, 1000);
+}
+
+init();
+
 const checkForm = (values) => {
   props.setting.VerifyOTP(values.code);
+};
+
+const backButton = () => {
+  init();
+  props.setting.backButton();
+};
+
+const sendOTP = () => {
+  init();
+  props.setting.SendOTP(props.setting.mobile);
 };
 </script>

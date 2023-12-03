@@ -59,7 +59,6 @@ const sendOTP = (mobileInput) => {
   let timer = 0;
   showResendButton.value = false;
   api.post(`/auth/otp/send?mobile=${mobileInput}`).then((res) => {
-    console.log(res);
     step.value = "VerifyOTP";
     mobile.value = mobileInput;
     attempt.value++;
